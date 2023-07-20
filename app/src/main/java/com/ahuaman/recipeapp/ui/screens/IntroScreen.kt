@@ -7,16 +7,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -28,26 +30,58 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ahuaman.recipeapp.R
 import com.ahuaman.recipeapp.ui.theme.RecipeAppTheme
-import com.ahuaman.recipeapp.ui.theme.YellowPrimary
+import com.ahuaman.recipeapp.ui.theme.PrimaryColorRecipes
 
 @Composable
-fun IntroScreen() {
+fun IntroScreen(
+    onClickNavigateHome: () -> Unit
+) {
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
             modifier = Modifier.fillMaxSize(),
-            painter = painterResource(id = R.drawable.image_background_intro),
+            painter = painterResource(id = R.drawable.image_background_hamburger),
             contentDescription = null,
             contentScale = ContentScale.Crop
         )
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = Color.Black.copy(alpha = 0.5f)
+            color = Color.Black.copy(alpha = 0.7f)
         ){}
+
+
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 20.dp)
+        ) {
+
+            Image(
+                painter = painterResource(id = R.drawable.ic_start),
+                contentDescription = null,
+                contentScale = ContentScale.Crop
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+                text = "60k+",
+                color = Color.White,
+                fontSize = 16.sp,
+                fontFamily = FontFamily(Font(R.font.googlesans_bold, FontWeight.Bold))
+            )
+            Spacer(modifier = Modifier.width(5.dp))
+
+            Text(text = "Premium recipes",
+                color = Color.White,
+                fontSize = 16.sp,
+                fontFamily = FontFamily(Font(R.font.googlesans_regular, FontWeight.Normal))
+            )
+
+        }
 
         //Content in bottom of the screen
         Column(
@@ -93,9 +127,9 @@ fun IntroScreen() {
             )
             Spacer(modifier = Modifier.height(20.dp))
             Button(
-                colors = ButtonDefaults.buttonColors(containerColor = YellowPrimary,),
-                shape = RoundedCornerShape(20),
-                onClick = { /*TODO*/ }) {
+                colors = ButtonDefaults.buttonColors(containerColor = PrimaryColorRecipes),
+                shape = RoundedCornerShape(10),
+                onClick = { onClickNavigateHome() }) {
                 Row(
                     verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
                 ) {
@@ -119,6 +153,8 @@ fun IntroScreen() {
 @Composable
 fun IntroScreenPrev() {
     RecipeAppTheme() {
-        IntroScreen()
+        IntroScreen(
+            onClickNavigateHome = {}
+        )
     }
 }

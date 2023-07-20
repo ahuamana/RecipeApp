@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">RecipeApp</string>
+    <string name="popular_recipes">Popular Recipes</string>
+    <string name="search">Search</string>
+    <string name="to_cook_today">to cook today?</string>
+    <string name="what_do_you_want">What do you want</string>
 </resources>
