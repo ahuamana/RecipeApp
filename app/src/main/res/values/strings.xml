@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">RecipeApp</string>
+    <string name="app_name">Recipe App</string>
     <string name="popular_recipes">Popular Recipes</string>
     <string name="search">Search</string>
     <string name="to_cook_today">to cook today?</string>
