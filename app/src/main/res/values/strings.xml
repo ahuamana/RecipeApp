@@ -4,4 +4,8 @@
     <string name="search">Search</string>
     <string name="to_cook_today">to cook today?</string>
     <string name="what_do_you_want">What do you want</string>
+    <string name="empty_screen_title_error_something_went_wrong">Oops!</string>
+    <string name="empty_screen_description_error_something_went_wrong">Algo pasó, por favor intenta de nuevo</string>
+    <string name="empty_screen_title_not_found_results">No se encontraron resultados</string>
+    <string name="empty_screen_description_no_results">No se encontraron resultados para: %1$s</string>
 </resources>

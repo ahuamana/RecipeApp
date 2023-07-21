@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
@@ -20,8 +21,8 @@ class HomeViewModel @Inject constructor(
     private val getRecipesUseCase: GetRecipesUseCase
 ):ViewModel() {
 
-    private val _listRecipes = MutableStateFlow<List<RecipeDomain>>(emptyList())
-    val listRecipes get() = _listRecipes.asStateFlow()
+    private val _stateUi = MutableStateFlow<StateUi>(StateUi())
+    val stateUi get() = _stateUi.asStateFlow()
 
     private val savedRecipes = mutableListOf<RecipeDomain>()
 
@@ -29,23 +30,27 @@ class HomeViewModel @Inject constructor(
         getRecipes()
     }
 
-    private fun getRecipes() = viewModelScope.launch(Dispatchers.IO){
+    fun getRecipes() = viewModelScope.launch(Dispatchers.IO){
         getRecipesUseCase.invoke()
             .onStart {
-                //show loading
+                _stateUi.value = StateUi(isLoading = true)
             }.onEach {
                 //update ui
                 savedRecipes.addAll(it)
-                _listRecipes.value = it
+                _stateUi.value = StateUi(listRecipes = it)
             }.onCompletion {
                 //hide loading
+            }.catch {
+                //show error
+                _stateUi.value = StateUi(error = it.message ?: "Error")
             }.launchIn(viewModelScope)
     }
 
+
     //search recipe by extendedIngredients
-    fun searchRecipeByIngredients(ingredients:String) = viewModelScope.launch(Dispatchers.IO){
+    fun searchRecipeByIngredients(ingredients:String) = viewModelScope.launch(Dispatchers.Default){
         if(ingredients.isEmpty()){
-            _listRecipes.value = savedRecipes
+            _stateUi.value = StateUi(listRecipes = savedRecipes)
             return@launch
         }
         val listRecipes = savedRecipes.filter { recipe ->
@@ -53,8 +58,13 @@ class HomeViewModel @Inject constructor(
                 ingredient.name.contains(ingredients, ignoreCase = true)
             }
         }
-        _listRecipes.value = listRecipes
+        _stateUi.value = StateUi(listRecipes = listRecipes)
     }
 
-
+    data class StateUi(
+        val listRecipes:List<RecipeDomain> = emptyList(),
+        val isLoading:Boolean = false,
+        val error:String = ""
+    )
 }
+

@@ -47,14 +47,18 @@ import androidx.compose.ui.unit.sp
 import com.ahuaman.domain.IngredientDomain
 import com.ahuaman.domain.RecipeDomain
 import com.ahuaman.recipeapp.R
+import com.ahuaman.recipeapp.ui.composables.CustomErrorScreenSomethingHappens
+import com.ahuaman.recipeapp.ui.composables.EmptyScreen
 import com.ahuaman.recipeapp.ui.composables.ItemRecipe
+import com.ahuaman.recipeapp.ui.composables.LoadingScreen
 import com.ahuaman.recipeapp.ui.theme.RecipeAppTheme
+import com.ahuaman.recipeapp.ui.viewmodel.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     onQueryChange: (String) -> Unit,
-    listRecipes: List<RecipeDomain>,
+    stateUi: HomeViewModel.StateUi,
     onClickRecipe: (RecipeDomain) -> Unit
 ) {
 
@@ -62,117 +66,139 @@ fun HomeScreen(
 
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .verticalScroll(
-            rememberScrollState()
-        )) {
-        //Header of the screen
-        Box() {
-            Card(
-                shape = RoundedCornerShape(bottomStart = 50.dp, bottomEnd = 50.dp),
-            ) {
-                Image(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .blur(9.dp)
-                        .clip(RoundedCornerShape(bottomStart = 50.dp, bottomEnd = 50.dp))
-                        .height(250.dp),
-                    painter = painterResource(id = R.drawable.image_background_home),
-                    contentDescription = null,
-                    contentScale = androidx.compose.ui.layout.ContentScale.Crop
-                )
-            }
-
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .offset(y = 80.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = stringResource(R.string.what_do_you_want),
-                    color = androidx.compose.ui.graphics.Color.White,
-                    fontSize = 30.sp,
-                    fontFamily = FontFamily(Font(R.font.googlesans_bold, FontWeight.Bold)),
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                )
-
-                Text(
-                    text = stringResource(R.string.to_cook_today),
-                    color = androidx.compose.ui.graphics.Color.White,
-                    fontSize = 30.sp,
-                    fontFamily = FontFamily(Font(R.font.googlesans_bold, FontWeight.Bold)),
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                )
-            }
-
-            SearchBar(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .height(70.dp)
-                    .offset(y = 200.dp)
-                    .clip(RoundedCornerShape(40.dp)),
-                query = searchQuery,
-                onQueryChange = {  queryChanged ->
-                    searchQuery = queryChanged // update the query state
-                    onQueryChange(queryChanged) // call the callback
-                },
-                onSearch = { query ->
-                    // Handle search ImeAction.Search here
-                },
-                active = true,
-                onActiveChange = { isActive ->
-                },
-                placeholder = { Text(stringResource(R.string.search)) },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                //trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) }
-            ) {
-                // Show suggestions here
-                // for example a LazyColumn with suggestion items
-            }
-
+    when {
+        stateUi.isLoading -> {
+            //show loading
+            LoadingScreen()
+        }
+        stateUi.error.isNotEmpty() -> {
+            CustomErrorScreenSomethingHappens()
         }
 
-        //Body of the screen
-        Column(
-            modifier = Modifier
-                .padding(top = 20.dp)
-                .fillMaxWidth()
-                .fillMaxHeight()
-        ) {
+        else -> {
+            Column(modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(
+                    rememberScrollState()
+                )) {
+                //Header of the screen
+                Box() {
+                    Card(
+                        shape = RoundedCornerShape(bottomStart = 50.dp, bottomEnd = 50.dp),
+                    ) {
+                        Image(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .blur(9.dp)
+                                .clip(RoundedCornerShape(bottomStart = 50.dp, bottomEnd = 50.dp))
+                                .height(250.dp),
+                            painter = painterResource(id = R.drawable.image_background_home),
+                            contentDescription = null,
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                        )
+                    }
 
-            Spacer(modifier = Modifier.height(40.dp))
+                    Column(modifier = Modifier
+                        .fillMaxWidth()
+                        .offset(y = 80.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = stringResource(R.string.what_do_you_want),
+                            color = androidx.compose.ui.graphics.Color.White,
+                            fontSize = 30.sp,
+                            fontFamily = FontFamily(Font(R.font.googlesans_bold, FontWeight.Bold)),
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
 
-            //Title // popular recipes
-            Text(
-                modifier = Modifier.padding(start = 16.dp),
-                text = stringResource(R.string.popular_recipes),
-                color = if(isDark) Color.White else Color.Black,
-                fontSize = 20.sp,
-                fontFamily = FontFamily(Font(R.font.googlesans_bold, FontWeight.Bold)),
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
-            )
+                        Text(
+                            text = stringResource(R.string.to_cook_today),
+                            color = androidx.compose.ui.graphics.Color.White,
+                            fontSize = 30.sp,
+                            fontFamily = FontFamily(Font(R.font.googlesans_bold, FontWeight.Bold)),
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
+                    }
 
-            LazyVerticalGrid(
-                userScrollEnabled = true,
-                modifier = Modifier.height(400.dp),
-                columns = GridCells.Fixed(2),
-                contentPadding = PaddingValues(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-            ){
+                    SearchBar(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .height(70.dp)
+                            .offset(y = 200.dp)
+                            .clip(RoundedCornerShape(40.dp)),
+                        query = searchQuery,
+                        onQueryChange = {  queryChanged ->
+                            searchQuery = queryChanged // update the query state
+                            onQueryChange(queryChanged) // call the callback
+                        },
+                        onSearch = { query ->
+                            // Handle search ImeAction.Search here
+                        },
+                        active = true,
+                        onActiveChange = { isActive ->
+                        },
+                        placeholder = { Text(stringResource(R.string.search)) },
+                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                        //trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) }
+                    ) {
+                        // Show suggestions here
+                        // for example a LazyColumn with suggestion items
+                    }
 
-                items(listRecipes) { recipe ->
-                    ItemRecipe(model = recipe, onClick = {
-                        onClickRecipe(recipe)
-                    } )
+                }
+
+                //Body of the screen
+                Column(
+                    modifier = Modifier
+                        .padding(top = 20.dp)
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                ) {
+
+                    Spacer(modifier = Modifier.height(40.dp))
+
+                    //Title // popular recipes
+                    Text(
+                        modifier = Modifier.padding(start = 16.dp),
+                        text = stringResource(R.string.popular_recipes),
+                        color = if(isDark) Color.White else Color.Black,
+                        fontSize = 20.sp,
+                        fontFamily = FontFamily(Font(R.font.googlesans_bold, FontWeight.Bold)),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+
+                    when {
+                        stateUi.listRecipes.isEmpty() -> {
+                            EmptyScreen(
+                                searchQuery
+                            )
+                        }
+                        else -> {
+                            //show list of recipes
+                            LazyVerticalGrid(
+                                userScrollEnabled = true,
+                                modifier = Modifier.height(400.dp),
+                                columns = GridCells.Fixed(2),
+                                contentPadding = PaddingValues(16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp),
+                            ){
+
+                                items(stateUi.listRecipes) { recipe ->
+                                    ItemRecipe(model = recipe, onClick = {
+                                        onClickRecipe(recipe)
+                                    } )
+                                }
+                            }
+                        }
+                    }
+
                 }
             }
-
-
         }
     }
+
 }
 
 
@@ -247,7 +273,7 @@ fun HomeScreenPrev() {
         )
 
         HomeScreen(
-            listRecipes = listRecipes,
+            stateUi = HomeViewModel.StateUi(listRecipes = emptyList()),
             onQueryChange = {},
             onClickRecipe = {}
         )
