@@ -23,6 +23,8 @@ class HomeViewModel @Inject constructor(
     private val _listRecipes = MutableStateFlow<List<RecipeDomain>>(emptyList())
     val listRecipes get() = _listRecipes.asStateFlow()
 
+    private val savedRecipes = mutableListOf<RecipeDomain>()
+
     init {
         getRecipes()
     }
@@ -33,10 +35,26 @@ class HomeViewModel @Inject constructor(
                 //show loading
             }.onEach {
                 //update ui
+                savedRecipes.addAll(it)
                 _listRecipes.value = it
             }.onCompletion {
                 //hide loading
             }.launchIn(viewModelScope)
     }
+
+    //search recipe by extendedIngredients
+    fun searchRecipeByIngredients(ingredients:String) = viewModelScope.launch(Dispatchers.IO){
+        if(ingredients.isEmpty()){
+            _listRecipes.value = savedRecipes
+            return@launch
+        }
+        val listRecipes = savedRecipes.filter { recipe ->
+            recipe.extendedIngredients.any { ingredient ->
+                ingredient.name.contains(ingredients, ignoreCase = true)
+            }
+        }
+        _listRecipes.value = listRecipes
+    }
+
 
 }

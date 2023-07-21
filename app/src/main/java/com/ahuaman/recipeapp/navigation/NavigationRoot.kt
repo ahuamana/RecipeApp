@@ -56,10 +56,10 @@ fun NavGraphBuilder.homeNav(navController:NavHostController){
             val homeViewModel = hiltViewModel<HomeViewModel>()
             val listRecipes by homeViewModel.listRecipes.collectAsStateWithLifecycle()
 
-            val recipes = emptyList<RecipeDomain>()
-
             HomeScreen(
-                onQueryChange = {/* TODO */},
+                onQueryChange = {
+                                homeViewModel.searchRecipeByIngredients(it)
+                                },
                 listRecipes = listRecipes,
                 onClickRecipe = { recipeDomain ->
                     val bundle =  Bundle()
