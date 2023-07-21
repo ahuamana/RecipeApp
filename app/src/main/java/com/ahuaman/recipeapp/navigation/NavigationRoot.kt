@@ -1,17 +1,31 @@
 package com.ahuaman.recipeapp.navigation
 
+import android.os.Bundle
+import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.ahuaman.domain.IngredientDomain
 import com.ahuaman.domain.RecipeDomain
 import com.ahuaman.recipeapp.ui.screens.DetailsScreen
 import com.ahuaman.recipeapp.ui.screens.HomeScreen
 import com.ahuaman.recipeapp.ui.screens.IntroScreen
 import com.ahuaman.recipeapp.ui.screens.MapsScreen
+import com.ahuaman.recipeapp.ui.viewmodel.DetailViewModel
+import com.ahuaman.recipeapp.ui.viewmodel.HomeViewModel
+import com.ahuaman.recipeapp.ui.viewmodel.MapsViewModel
+import com.google.android.gms.maps.model.LatLng
+import com.google.gson.Gson
+import timber.log.Timber
 
 @Composable
 fun RootNavigationGraph(navController: NavHostController = rememberNavController()) {
@@ -27,7 +41,7 @@ fun RootNavigationGraph(navController: NavHostController = rememberNavController
                 },
             )
         }
-
+        //nesting navigation
         homeNav(navController = navController)
     }
 }
@@ -35,39 +49,62 @@ fun RootNavigationGraph(navController: NavHostController = rememberNavController
 fun NavGraphBuilder.homeNav(navController:NavHostController){
     navigation(
         startDestination = HomeNavigationScreens.HomeScreen.route,
-        route = Graph.HOME){
+        route = Graph.HOME
+    ){
 
         composable(route = HomeNavigationScreens.HomeScreen.route){
+            val homeViewModel = hiltViewModel<HomeViewModel>()
+            val listRecipes by homeViewModel.listRecipes.collectAsStateWithLifecycle()
+
+            val recipes = emptyList<RecipeDomain>()
+
             HomeScreen(
                 onQueryChange = {/* TODO */},
-                listRecipes = listOf(),
+                listRecipes = listRecipes,
+                onClickRecipe = { recipeDomain ->
+                    val bundle =  Bundle()
+                    bundle.putString("recipe", Gson().toJson(recipeDomain))
+                    navController.navigate(
+                        HomeNavigationScreens.DetailScreen.route , args = bundle
+                    )
+                },
             )
         }
 
-        composable(route = HomeNavigationScreens.DetailScreen.route){
-            DetailsScreen(
-                item = RecipeDomain(
-                    id = "1",
-                    title = "Hamburguesa",
-                    image = "https://www.recetasderechupete.com/wp-content/uploads/2019/08/Hamburguesa-de-ternera-con-queso-y-cebolla.jpg",
-                    ingredients = listOf("Pan", "Carne", "Queso", "Lechuga", "Tomate", "Cebolla"),
-                    description = "Hamburguesa de ternera con queso y cebolla",
-                    instructions = "1. Cortar la cebolla en juliana y pocharla en una sartén con un poco de aceite de oliva. Salpimentar y reservar.\n" +
-                            "2. Dividir la carne en 4 porciones y formar las hamburguesas. Salpimentar.\n" +
-                            "3. Calentar una sartén con un poco de aceite de oliva y cocinar las hamburguesas al gusto.\n" +
-                            "4. Cortar el pan por la mitad y tostarlo en una sartén con un poco de aceite de oliva.\n" +
-                            "5. Montar la hamburguesa con la carne, el queso, la lechuga, el tomate y la cebolla.\n" +
-                            "6. Servir con patatas fritas.",
-                    tags = listOf("Hamburguesa", "Carne", "Queso", "Lechuga", "Tomate", "Cebolla"),
-                    score = 4.5f,
-                    author = "Ahuaman",
-                ),
-                onClickBack = {/* TODO */},
-            )
+        composable(
+            route = HomeNavigationScreens.DetailScreen.route,
+        ){
+            val viewModel = hiltViewModel<DetailViewModel>()
+            val recipe by viewModel.recipe.collectAsStateWithLifecycle()
+
+
+            recipe?.let { recipeDomain ->
+                DetailsScreen(
+                    item = recipeDomain,
+                    onClickBack = {
+                        navController.popBackStack()
+                    },
+                    onClickMaps = {
+                        val bundle =  Bundle()
+                        bundle.putString("recipe", Gson().toJson(it))
+                        navController.navigate(HomeNavigationScreens.MapsScreen.route, args = bundle)
+                    }
+                )
+            }
         }
 
         composable(route = HomeNavigationScreens.MapsScreen.route){
-            MapsScreen()
+
+            val viewModel = hiltViewModel<MapsViewModel>()
+            val recipe by viewModel.recipe.collectAsStateWithLifecycle()
+
+            MapsScreen(
+                latLng = LatLng(recipe?.lat?:0.0, recipe?.lon?:0.0),
+                title = recipe?.title?:"",
+                snippet = recipe?.address?:"",
+
+
+            )
         }
     }
 }
@@ -81,7 +118,7 @@ sealed class HomeNavigationScreens(val route: String){
 }
 
 object Graph{
-    const val ROOT = "root"
-    const val HOME = "home"
-    const val INTRO = "intro"
+    const val ROOT = "graph_root"
+    const val HOME = "graph_home"
+    const val INTRO = "graph_intro"
 }

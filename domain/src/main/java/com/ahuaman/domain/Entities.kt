@@ -4,14 +4,22 @@ data class RecipeDomain(
     val id: String,
     val title: String,
     val image: String,
-    val ingredients: List<String>,
-    val description: String,
+    val extendedIngredients: List<IngredientDomain>,
+    val summary: String,
+    val type: String?= null,
     val instructions: String,
-    val tags: List<String>,
-    val score: Float,
+    val healthScore: Float,
     val author: String?= null,
     val address: String?= null,
     val authorImage: String?= null,
+    val lat: Double?= null,
+    val lon: Double?= null,
+)
+
+data class IngredientDomain(
+    val id: String,
+    val name: String,
+    val image: String,
 )
 
 data class RecipeResponse(

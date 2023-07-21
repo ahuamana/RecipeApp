@@ -1,7 +1,6 @@
 package com.ahuaman.recipeapp.ui.screens
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,7 +16,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
@@ -41,11 +42,9 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewFontScale
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import com.ahuaman.domain.IngredientDomain
 import com.ahuaman.domain.RecipeDomain
 import com.ahuaman.recipeapp.R
 import com.ahuaman.recipeapp.ui.composables.ItemRecipe
@@ -56,13 +55,18 @@ import com.ahuaman.recipeapp.ui.theme.RecipeAppTheme
 fun HomeScreen(
     onQueryChange: (String) -> Unit,
     listRecipes: List<RecipeDomain>,
+    onClickRecipe: (RecipeDomain) -> Unit
 ) {
 
     val isDark = isSystemInDarkTheme()
 
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .verticalScroll(
+            rememberScrollState()
+        )) {
         //Header of the screen
         Box() {
             Card(
@@ -151,14 +155,17 @@ fun HomeScreen(
             )
 
             LazyVerticalGrid(
+                userScrollEnabled = true,
+                modifier = Modifier.height(400.dp),
                 columns = GridCells.Fixed(2),
                 contentPadding = PaddingValues(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ){
+
                 items(listRecipes) { recipe ->
                     ItemRecipe(model = recipe, onClick = {
-
+                        onClickRecipe(recipe)
                     } )
                 }
             }
@@ -168,7 +175,7 @@ fun HomeScreen(
     }
 }
 
-@PreviewScreenSizes
+
 @Preview
 @Composable
 fun HomeScreenPrev() {
@@ -179,49 +186,70 @@ fun HomeScreenPrev() {
                 id = "1",
                 title = "Recipe 1",
                 image = "https://www.themealdb.com/images/media/meals/llcbn01574260722.jpg",
-                description = "Description 1",
-                ingredients = listOf("ingredient1", "ingredient2", "ingredient3"),
+                summary = "Description 1",
+                extendedIngredients = listOf(
+                    IngredientDomain(
+                        id = "1",
+                        name = "Ingredient 1",
+                        image = "https://www.themealdb.com/images/media/meals/llcbn01574260722.jpg",
+                    )
+                ),
                 instructions = "Instructions 1",
-                tags = listOf("tag1", "tag2", "tag3"),
-                score = 1f
+                healthScore = 4.5f,
             ),
             RecipeDomain(
                 id = "2",
                 title = "Recipe 2",
                 image = "https://www.themealdb.com/images/media/meals/llcbn01574260722.jpg",
-                description = "Description 2",
-                ingredients = listOf("ingredient1", "ingredient2", "ingredient3"),
+                summary = "Description 2",
+                extendedIngredients = listOf(
+                    IngredientDomain(
+                        id = "1",
+                        name = "Ingredient 1",
+                        image = "https://www.themealdb.com/images/media/meals/llcbn01574260722.jpg",
+                    )
+                ),
                 instructions = "Instructions 2",
-                tags = listOf("tag1", "tag2", "tag3"),
-                score = 4.5f
+               healthScore = 4.5f
             ),
 
             RecipeDomain(
                 id = "3",
                 title = "Recipe 3",
                 image = "https://www.themealdb.com/images/media/meals/llcbn01574260722.jpg",
-                description = "Description 3",
-                ingredients = listOf("ingredient1", "ingredient2", "ingredient3"),
+                summary = "Description 3",
+                extendedIngredients = listOf(
+                    IngredientDomain(
+                        id = "1",
+                        name = "Ingredient 1",
+                        image = "https://www.themealdb.com/images/media/meals/llcbn01574260722.jpg",
+                    )
+                ),
                 instructions = "Instructions 3",
-                tags = listOf("tag1", "tag2", "tag3"),
-                score = 3.5f
+                healthScore = 3.5f
             ),
 
             RecipeDomain(
                 id = "4",
                 title = "Recipe 4",
                 image = "https://www.themealdb.com/images/media/meals/llcbn01574260722.jpg",
-                description = "Description 4",
-                ingredients = listOf("ingredient1", "ingredient2", "ingredient3"),
+                summary = "Description 4",
+                extendedIngredients = listOf(
+                    IngredientDomain(
+                        id = "1",
+                        name = "Ingredient 1",
+                        image = "https://www.themealdb.com/images/media/meals/llcbn01574260722.jpg",
+                    )
+                ),
                 instructions = "Instructions 4",
-                tags = listOf("tag1", "tag2", "tag3"),
-                score = 7f
+                healthScore = 7f
             ),
         )
 
         HomeScreen(
             listRecipes = listRecipes,
-            onQueryChange = {}
+            onQueryChange = {},
+            onClickRecipe = {}
         )
     }
 }

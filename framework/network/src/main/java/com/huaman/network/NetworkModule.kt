@@ -31,7 +31,7 @@ object NetworkModule {
          okHttpClient: OkHttpClient
     ): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://demo1125024.mockable.io/")
+            .baseUrl("https://demo1125024.mockable.io/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

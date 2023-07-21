@@ -28,10 +28,12 @@ import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
 fun MapsScreen(
+    latLng: LatLng = LatLng(1.35, 103.87),
+    title : String,
+    snippet : String,
 ) {
-    val singapore = LatLng(1.35, 103.87)
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(singapore, 10f)
+        position = CameraPosition.fromLatLngZoom(latLng, 10f)
     }
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
@@ -39,15 +41,14 @@ fun MapsScreen(
     ) {
 
         val iconStart = getBitmapDescriptorFromVector(
-            vectorResId = R.drawable.ic_mark_maps,
-            tintColor = PrimaryColorRecipes.toArgb()
+            vectorResId = R.drawable.ic_burger
         )
 
         Marker(
             icon = iconStart,
-            state = MarkerState(position = singapore),
-            title = "Singapore",
-            snippet = "Marker in Singapore",
+            state = MarkerState(position = latLng),
+            title = title,
+            snippet = snippet
 
         )
     }
@@ -57,12 +58,14 @@ fun MapsScreen(
 @Composable
 private fun getBitmapDescriptorFromVector(
     vectorResId: Int,
-    @DrawableRes tintColor: Int? = R.color.black,
+    @DrawableRes tintColor: Int? = null,
 ): BitmapDescriptor {
     val drawable: Drawable? = LocalContext.current.getDrawable(vectorResId)
 
     //tint drawable
-    drawable?.setTint(tintColor?: R.color.black)
+    tintColor?.let {
+        drawable?.setTint(it)
+    }
 
     val bitmap: Bitmap = drawable?.run {
         val bitmap = Bitmap.createBitmap(
@@ -83,6 +86,10 @@ private fun getBitmapDescriptorFromVector(
 @Composable
 fun MapsScreenPrev() {
     RecipeAppTheme {
-        MapsScreen()
+        MapsScreen(
+            latLng = LatLng(1.35, 103.87),
+            title = "Singapore",
+            snippet = "Singapore"
+        )
     }
 }
