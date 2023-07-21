@@ -54,13 +54,13 @@ fun NavGraphBuilder.homeNav(navController:NavHostController){
 
         composable(route = HomeNavigationScreens.HomeScreen.route){
             val homeViewModel = hiltViewModel<HomeViewModel>()
-            val listRecipes by homeViewModel.listRecipes.collectAsStateWithLifecycle()
+            val stateUi by homeViewModel.stateUi.collectAsStateWithLifecycle()
 
             HomeScreen(
                 onQueryChange = {
                                 homeViewModel.searchRecipeByIngredients(it)
                                 },
-                listRecipes = listRecipes,
+                stateUi = stateUi,
                 onClickRecipe = { recipeDomain ->
                     val bundle =  Bundle()
                     bundle.putString("recipe", Gson().toJson(recipeDomain))
